@@ -31,6 +31,7 @@ body {
     z-index: 1;
 }
 
+/* 精緻的極光藍紫漸層標題（降低死白感） */
 .neon-white-title {
     text-align: center;
     margin-top: 0;
@@ -38,10 +39,11 @@ body {
     font-size: 30px;
     font-weight: 800;
     letter-spacing: 2px;
-    color: #ffffff;
-    text-shadow: 0 0 5px rgba(56, 189, 248, 0.6),
-                 0 0 10px rgba(56, 189, 248, 0.4),
-                 0 0 20px rgba(129, 140, 248, 0.3);
+    background: linear-gradient(135deg, #a5f3fc, #cbd5e1, #e9d5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.4),
+                 0 0 15px rgba(168, 85, 247, 0.2);
 }
 
 /* 數據統計區 */
@@ -94,7 +96,7 @@ input[type="text"] {
     outline: none;
     transition: all 0.3s;
     position: relative;
-    z-index: 10;
+    z-index: 10; /* 強制提升層級，確保點得到 */
 }
 input[type="text"]:focus, input[type="date"]:focus {
     border-color: #38bdf8;
@@ -111,7 +113,7 @@ input[type="date"] {
     color: var(--text-main);
     cursor: pointer;
     position: relative;
-    z-index: 10;
+    z-index: 10; /* 強制提升層級，確保點得到 */
 }
 
 button.add-btn {
