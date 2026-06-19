@@ -5,41 +5,206 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>待辦事項清單</title>
     <style>
-        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg: #f3f4f6; --danger: #ef4444; }
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
-        .todo-container { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { text-align: center; color: #1f2937; margin-bottom: 25px; font-size: 24px; }
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: linear-gradient(135deg, #6366f1, #a855f7);
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .todo-container {
+            background: var(--card-dark);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 26px;
+            font-weight: 700;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 數據統計區 */
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: #111827;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #1e293b;
+        }
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        .stat-item:not(:last-child) {
+            border-right: 1px solid #334155;
+        }
+        .stat-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f1f5f9;
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* 輸入區域 */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 16px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            font-size: 16px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus, input[type="date"]:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
         
-        /* 調整輸入區域排版 */
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .input-row { display: flex; gap: 10px; }
-        input[type="text"] { flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; outline: none; }
-        input[type="text"]:focus, input[type="date"]:focus { border-color: var(--primary); }
+        input[type="date"] {
+            padding: 12px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            color: var(--text-main);
+        }
         
-        /* 日期與按鈕排版 */
-        input[type="date"] { padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; color: #4b5563; }
-        button.add-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; flex: 1; }
-        button.add-btn:hover { background: var(--primary-hover); }
+        button.add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+        }
         
+        /* 快速功能 */
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        .clear-btn {
+            background: none;
+            border: 1px solid #475569;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .clear-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* 任務清單 */
         ul { list-style: none; padding: 0; margin: 0; }
-        li { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #f9fafb; margin-bottom: 10px; border-radius: 8px; border: 1px solid #f3f4f6; }
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: #1e293b;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        li:hover {
+            border-color: #475569;
+            transform: translateY(-1px);
+        }
         
-        /* 勾選完成的樣式 */
-        li.completed .todo-text, li.completed .todo-date { text-decoration: line-through; color: #9ca3af !important; }
+        li.completed {
+            background: #0f172a;
+            border-color: #1e293b;
+            opacity: 0.6;
+        }
+        li.completed .todo-text, li.completed .todo-date {
+            text-decoration: line-through;
+            color: var(--text-muted) !important;
+        }
         
-        .todo-content { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
+        .todo-content { display: flex; align-items: center; gap: 14px; cursor: pointer; flex: 1; }
         .text-group { display: flex; flex-direction: column; gap: 4px; }
-        .todo-text { font-size: 16px; color: #1f2937; font-weight: 500; }
+        .todo-text { font-size: 16px; color: var(--text-main); font-weight: 500; }
         
-        /* 日期標籤樣式 */
-        .todo-date { font-size: 12px; color: #6b7280; }
-        /* 過期警告樣式 */
+        .todo-date { font-size: 12px; color: var(--text-muted); }
         .urgent .todo-date { color: var(--danger); font-weight: bold; }
         
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-        .delete-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .delete-btn:hover { background: #fca5a5; }
-        .empty-state { text-align: center; color: #9ca3af; margin-top: 20px; font-size: 14px; }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #6366f1;
+        }
+        
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .delete-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .empty-state { text-align: center; color: var(--text-muted); margin-top: 25px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -47,12 +212,31 @@
     <div class="todo-container">
         <h1>待辦事項清單</h1>
         
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-val" id="count-all">0</div>
+                <div class="stat-lbl">全部</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val" id="count-active">0</div>
+                <div class="stat-lbl">進行中</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val" id="count-completed">0</div>
+                <div class="stat-lbl">已完成</div>
+            </div>
+        </div>
+        
         <div class="input-group">
             <input type="text" id="todo-input" placeholder="新增一項任務...">
             <div class="input-row">
                 <input type="date" id="todo-date">
                 <button class="add-btn" id="add-button">新增任務</button>
             </div>
+        </div>
+
+        <div class="action-row">
+            <button class="clear-btn" id="clear-all">清除所有任務</button>
         </div>
 
         <ul id="todo-list"></ul>
@@ -65,10 +249,30 @@
         const addButton = document.getElementById('add-button');
         const todoList = document.getElementById('todo-list');
         const emptyMsg = document.getElementById('empty-msg');
+        const clearAllBtn = document.getElementById('clear-all');
 
-        // 自動將日期的預設值設為今天
+        const countAll = document.getElementById('count-all');
+        const countActive = document.getElementById('count-active');
+        const countCompleted = document.getElementById('count-completed');
+
         const today = new Date().toISOString().split('T')[0];
         todoDate.value = today;
+
+        function updateStats() {
+            const total = todoList.children.length;
+            const completed = todoList.querySelectorAll('li.completed').length;
+            const active = total - completed;
+
+            countAll.textContent = total;
+            countActive.textContent = active;
+            countCompleted.textContent = completed;
+
+            if (total === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+            }
+        }
 
         function addTodo() {
             const taskText = todoInput.value.trim();
@@ -77,7 +281,6 @@
 
             const li = document.createElement('li');
             
-            // 判斷日期是否過期 (比今天早或等於今天)
             let isUrgent = false;
             if (taskDate) {
                 isUrgent = taskDate <= today;
@@ -86,12 +289,11 @@
                 li.classList.add('urgent');
             }
             
-            // 格式化顯示日期
             const dateDisplay = taskDate ? `📅 截止日期: ${taskDate}` : '📅 未設定日期';
 
             li.innerHTML = `
-                <div class="todo-content" onclick="toggleComplete(this)">
-                    <input type="checkbox">
+                <div class="todo-content">
+                    <input type="checkbox" onchange="toggleComplete(this)">
                     <div class="text-group">
                         <span class="todo-text">${taskText}</span>
                         <span class="todo-date">${dateDisplay} ${isUrgent ? '⚠️ 快過期或已過期！' : ''}</span>
@@ -102,8 +304,8 @@
 
             todoList.appendChild(li);
             todoInput.value = ''; 
-            todoDate.value = today; // 重設日期為今天
-            checkEmpty();
+            todoDate.value = today; 
+            updateStats();
         }
 
         addButton.addEventListener('click', addTodo);
@@ -111,26 +313,30 @@
             if (e.key === 'Enter') addTodo();
         });
 
-        function toggleComplete(element) {
-            const li = element.parentElement;
-            const checkbox = element.querySelector('input[type="checkbox"]');
-            li.classList.toggle('completed');
-            checkbox.checked = li.classList.contains('completed');
+        function toggleComplete(checkbox) {
+            const li = checkbox.closest('li');
+            if (checkbox.checked) {
+                li.classList.add('completed');
+            } else {
+                li.classList.remove('completed');
+            }
+            updateStats();
         }
 
         function deleteTodo(button) {
             const li = button.parentElement;
             li.remove();
-            checkEmpty();
+            updateStats();
         }
 
-        function checkEmpty() {
-            if (todoList.children.length === 0) {
-                emptyMsg.style.display = 'block';
-            } else {
-                emptyMsg.style.display = 'none';
+        clearAllBtn.addEventListener('click', function() {
+            if (confirm('確定要清除所有待辦事項嗎？')) {
+                todoList.innerHTML = '';
+                updateStats();
             }
-        }
+        });
+
+        updateStats();
     </script>
 </body>
 </html>
