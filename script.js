@@ -9,7 +9,7 @@ const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
 const countCompleted = document.getElementById('count-completed');
 
-// 自動設定今日日期
+// 初始化為今日日期
 const today = new Date().toISOString().split('T')[0];
 todoDate.value = today;
 
@@ -68,7 +68,8 @@ todoInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') addTodo();
 });
 
-function toggleComplete(checkbox) {
+// 將動態生成的點擊事件掛載到全域 window 上
+window.toggleComplete = function(checkbox) {
     const li = checkbox.closest('li');
     if (checkbox.checked) {
         li.classList.add('completed');
@@ -76,13 +77,13 @@ function toggleComplete(checkbox) {
         li.classList.remove('completed');
     }
     updateStats();
-}
+};
 
-function deleteTodo(button) {
+window.deleteTodo = function(button) {
     const li = button.parentElement;
     li.remove();
     updateStats();
-}
+};
 
 clearAllBtn.addEventListener('click', function() {
     if (confirm('確定要清除所有待辦事項嗎？')) {
@@ -91,5 +92,5 @@ clearAllBtn.addEventListener('click', function() {
     }
 });
 
-// 初始化統計數據
+// 啟動初始化統計
 updateStats();
