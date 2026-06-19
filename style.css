@@ -221,5 +221,17 @@ input[type="checkbox"] {
     background: var(--danger);
     color: white;
 }
+/* 針對 Chrome, Edge, Safari 瀏覽器 */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    /* 使用白色的濾鏡，把圖標直接變成亮白色 */
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
 
 .empty-state { text-align: center; color: var(--text-muted); margin-top: 25px; font-size: 14px; }
