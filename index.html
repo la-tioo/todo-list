@@ -5,21 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>待辦事項清單</title>
     <style>
-        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg: #f3f4f6; }
+        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg: #f3f4f6; --danger: #ef4444; }
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
-        .todo-container { background: white; width: 100%; max-width: 450px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .todo-container { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         h1 { text-align: center; color: #1f2937; margin-bottom: 25px; font-size: 24px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; outline: none; transition: border 0.2s; }
-        input[type="text"]:focus { border-color: var(--primary); }
-        button.add-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        
+        /* 調整輸入區域排版 */
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .input-row { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; outline: none; }
+        input[type="text"]:focus, input[type="date"]:focus { border-color: var(--primary); }
+        
+        /* 日期與按鈕排版 */
+        input[type="date"] { padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; color: #4b5563; }
+        button.add-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; flex: 1; }
         button.add-btn:hover { background: var(--primary-hover); }
+        
         ul { list-style: none; padding: 0; margin: 0; }
-        li { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f9fafb; margin-bottom: 10px; border-radius: 8px; border: 1px solid #f3f4f6; transition: all 0.2s; }
-        li.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
+        li { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #f9fafb; margin-bottom: 10px; border-radius: 8px; border: 1px solid #f3f4f6; }
+        
+        /* 勾選完成的樣式 */
+        li.completed .todo-text, li.completed .todo-date { text-decoration: line-through; color: #9ca3af !important; }
+        
         .todo-content { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
+        .text-group { display: flex; flex-direction: column; gap: 4px; }
+        .todo-text { font-size: 16px; color: #1f2937; font-weight: 500; }
+        
+        /* 日期標籤樣式 */
+        .todo-date { font-size: 12px; color: #6b7280; }
+        /* 過期警告樣式 */
+        .urgent .todo-date { color: var(--danger); font-weight: bold; }
+        
         input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-        .delete-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        .delete-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .delete-btn:hover { background: #fca5a5; }
         .empty-state { text-align: center; color: #9ca3af; margin-top: 20px; font-size: 14px; }
     </style>
@@ -27,52 +45,72 @@
 <body>
 
     <div class="todo-container">
-        <h1>📝 期末專案：待辦事項清單</h1>
+        <h1>📝 期末專案：進階待辦事項清單</h1>
         
         <div class="input-group">
             <input type="text" id="todo-input" placeholder="新增一項任務...">
-            <button class="add-btn" id="add-button">新增</button>
+            <div class="input-row">
+                <input type="date" id="todo-date">
+                <button class="add-btn" id="add-button">新增任務</button>
+            </div>
         </div>
 
-        <ul id="todo-list">
-            </ul>
-
+        <ul id="todo-list"></ul>
         <div id="empty-msg" class="empty-state">目前沒有任何待辦事項，來新增一個吧！</div>
     </div>
 
     <script>
         const todoInput = document.getElementById('todo-input');
+        const todoDate = document.getElementById('todo-date');
         const addButton = document.getElementById('add-button');
         const todoList = document.getElementById('todo-list');
         const emptyMsg = document.getElementById('empty-msg');
 
-        // 新增任務的 function
+        // 自動將日期的預設值設為今天
+        const today = new Date().toISOString().split('T')[0];
+        todoDate.value = today;
+
         function addTodo() {
             const taskText = todoInput.value.trim();
+            const taskDate = todoDate.value;
             if (taskText === '') return; 
 
             const li = document.createElement('li');
             
+            // 判斷日期是否過期 (比今天早或等於今天)
+            let isUrgent = false;
+            if (taskDate) {
+                isUrgent = taskDate <= today;
+            }
+            if (isUrgent) {
+                li.classList.add('urgent');
+            }
+            
+            // 格式化顯示日期
+            const dateDisplay = taskDate ? `📅 截止日期: ${taskDate}` : '📅 未設定日期';
+
             li.innerHTML = `
                 <div class="todo-content" onclick="toggleComplete(this)">
                     <input type="checkbox">
-                    <span class="todo-text">${taskText}</span>
+                    <div class="text-group">
+                        <span class="todo-text">${taskText}</span>
+                        <span class="todo-date">${dateDisplay} ${isUrgent ? '⚠️ 快過期或已過期！' : ''}</span>
+                    </div>
                 </div>
                 <button class="delete-btn" onclick="deleteTodo(this)">刪除</button>
             `;
 
             todoList.appendChild(li);
             todoInput.value = ''; 
+            todoDate.value = today; // 重設日期為今天
             checkEmpty();
         </div>
 
-        // 點擊新增按鈕與按下 Enter 鍵觸發
         addButton.addEventListener('click', addTodo);
         todoInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') addTodo();
         });
 
-        // 勾選完成/取消完成
         function toggleComplete(element) {
             const li = element.parentElement;
             const checkbox = element.querySelector('input[type="checkbox"]');
@@ -80,14 +118,12 @@
             checkbox.checked = li.classList.contains('completed');
         }
 
-        // 刪除項目
         function deleteTodo(button) {
             const li = button.parentElement;
             li.remove();
             checkEmpty();
         }
 
-        // 檢查清單是否為空
         function checkEmpty() {
             if (todoList.children.length === 0) {
                 emptyMsg.style.display = 'block';
