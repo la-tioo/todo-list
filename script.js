@@ -1,213 +1,95 @@
-:root {
-    --bg-dark: #0f172a;
-    --card-dark: #1e293b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --accent: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
-    --danger: #ef4444;
+const todoInput = document.getElementById('todo-input');
+const todoDate = document.getElementById('todo-date');
+const addButton = document.getElementById('add-button');
+const todoList = document.getElementById('todo-list');
+const emptyMsg = document.getElementById('empty-msg');
+const clearAllBtn = document.getElementById('clear-all');
+
+const countAll = document.getElementById('count-all');
+const countActive = document.getElementById('count-active');
+const countCompleted = document.getElementById('count-completed');
+
+// 自動設定今日日期
+const today = new Date().toISOString().split('T')[0];
+todoDate.value = today;
+
+function updateStats() {
+    const total = todoList.children.length;
+    const completed = todoList.querySelectorAll('li.completed').length;
+    const active = total - completed;
+
+    countAll.textContent = total;
+    countActive.textContent = active;
+    countCompleted.textContent = completed;
+
+    if (total === 0) {
+        emptyMsg.style.display = 'block';
+    } else {
+        emptyMsg.style.display = 'none';
+    }
 }
 
-body {
-    font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    margin: 0;
-    padding: 40px 20px;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    box-sizing: border-box;
+function addTodo() {
+    const taskText = todoInput.value.trim();
+    const taskDate = todoDate.value;
+    if (taskText === '') return; 
+
+    const li = document.createElement('li');
+    
+    let isUrgent = false;
+    if (taskDate) {
+        isUrgent = taskDate <= today;
+    }
+    if (isUrgent) {
+        li.classList.add('urgent');
+    }
+    
+    const dateDisplay = taskDate ? `📅 截止日期: ${taskDate}` : '📅 未設定日期';
+
+    li.innerHTML = `
+        <div class="todo-content">
+            <input type="checkbox" onchange="toggleComplete(this)">
+            <div class="text-group">
+                <span class="todo-text">${taskText}</span>
+                <span class="todo-date">${dateDisplay} ${isUrgent ? '⚠️ 快過期或已過期！' : ''}</span>
+            </div>
+        </div>
+        <button class="delete-btn" onclick="deleteTodo(this)">刪除</button>
+    `;
+
+    todoList.appendChild(li);
+    todoInput.value = ''; 
+    todoDate.value = today; 
+    updateStats();
 }
 
-.todo-container {
-    background: var(--card-dark);
-    width: 100%;
-    max-width: 500px;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border: 1px solid #334155;
+addButton.addEventListener('click', addTodo);
+todoInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addTodo();
+});
+
+function toggleComplete(checkbox) {
+    const li = checkbox.closest('li');
+    if (checkbox.checked) {
+        li.classList.add('completed');
+    } else {
+        li.classList.remove('completed');
+    }
+    updateStats();
 }
 
-/* 全新：高對比極光白霓虹標題（絕對亮眼不融入背景） */
-.neon-white-title {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #ffffff;
-    /* 運用多層次發光陰影，在暗色背景下耀眼奪目 */
-    text-shadow: 0 0 5px rgba(56, 189, 248, 0.6),
-                 0 0 10px rgba(56, 189, 248, 0.4),
-                 0 0 20px rgba(129, 140, 248, 0.3);
+function deleteTodo(button) {
+    const li = button.parentElement;
+    li.remove();
+    updateStats();
 }
 
-/* 數據統計區 */
-.stats-container {
-    display: flex;
-    justify-content: space-between;
-    background: #0b1329;
-    padding: 14px 16px;
-    border-radius: 14px;
-    margin-bottom: 25px;
-    border: 1px solid #334155;
-}
-.stat-item {
-    text-align: center;
-    flex: 1;
-}
-.stat-item:not(:last-child) {
-    border-right: 1px solid #334155;
-}
-.stat-val {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-}
-.stat-lbl {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-}
+clearAllBtn.addEventListener('click', function() {
+    if (confirm('確定要清除所有待辦事項嗎？')) {
+        todoList.innerHTML = '';
+        updateStats();
+    }
+});
 
-/* 輸入區域 */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 25px;
-}
-.input-row {
-    display: flex;
-    gap: 12px;
-}
-input[type="text"] {
-    flex: 1;
-    padding: 14px 16px;
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 10px;
-    font-size: 16px;
-    color: var(--text-main);
-    outline: none;
-    transition: all 0.3s;
-}
-input[type="text"]:focus, input[type="date"]:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-}
-
-input[type="date"] {
-    padding: 12px;
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 10px;
-    font-size: 14px;
-    outline: none;
-    color: var(--text-main);
-    cursor: pointer;
-}
-
-button.add-btn {
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: bold;
-    flex: 1;
-    transition: transform 0.1s, opacity 0.2s;
-}
-button.add-btn:hover {
-    opacity: 0.95;
-    box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
-}
-button.add-btn:active {
-    transform: scale(0.98);
-}
-
-/* 快速功能 */
-.action-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 15px;
-}
-.clear-btn {
-    background: none;
-    border: 1px solid #475569;
-    color: var(--text-muted);
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-}
-.clear-btn:hover {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--danger);
-    border-color: var(--danger);
-}
-
-/* 任務清單 */
-ul { list-style: none; padding: 0; margin: 0; }
-li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: #1e293b;
-    margin-bottom: 12px;
-    border-radius: 10px;
-    border: 1px solid #334155;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s;
-}
-li:hover {
-    border-color: #475569;
-    transform: translateY(-2px);
-}
-
-li.completed {
-    background: #0f172a;
-    border-color: #1e293b;
-    opacity: 0.5;
-}
-li.completed .todo-text, li.completed .todo-date {
-    text-decoration: line-through;
-    color: var(--text-muted) !important;
-}
-
-.todo-content { display: flex; align-items: center; gap: 14px; cursor: pointer; flex: 1; }
-.text-group { display: flex; flex-direction: column; gap: 4px; }
-.todo-text { font-size: 16px; color: var(--text-main); font-weight: 500; }
-
-.todo-date { font-size: 12px; color: var(--text-muted); }
-.urgent .todo-date { color: var(--danger); font-weight: bold; }
-
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #6366f1;
-}
-
-.delete-btn {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-.delete-btn:hover {
-    background: var(--danger);
-    color: white;
-}
-
-.empty-state { text-align: center; color: var(--text-muted); margin-top: 25px; font-size: 14px; }
+// 初始化統計數據
+updateStats();
