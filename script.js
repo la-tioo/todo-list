@@ -9,10 +9,9 @@ const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
 const countCompleted = document.getElementById('count-completed');
 
-// 初始化為今日日期
-const today = new Date().toISOString().split('T')[0];
-todoDate.value = today;
+// 移除了自動注入今天日期的設定，保留選單空白供自由選擇
 
+// 更新狀態面板與空白提示
 function updateStats() {
     const total = todoList.children.length;
     const completed = todoList.querySelectorAll('li.completed').length;
@@ -29,6 +28,7 @@ function updateStats() {
     }
 }
 
+// 新增任務邏輯
 function addTodo() {
     const taskText = todoInput.value.trim();
     const taskDate = todoDate.value;
@@ -36,9 +36,11 @@ function addTodo() {
 
     const li = document.createElement('li');
     
+    // 計算是否快過期或已過期
     let isUrgent = false;
+    const todayStr = new Date().toISOString().split('T')[0];
     if (taskDate) {
-        isUrgent = taskDate <= today;
+        isUrgent = taskDate <= todayStr;
     }
     if (isUrgent) {
         li.classList.add('urgent');
@@ -59,16 +61,17 @@ function addTodo() {
 
     todoList.appendChild(li);
     todoInput.value = ''; 
-    todoDate.value = today; 
+    todoDate.value = ''; // 新增完畢後清空日期選單，回復空白
     updateStats();
 }
 
+// 監聽點擊與 Enter 鍵事件
 addButton.addEventListener('click', addTodo);
 todoInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') addTodo();
 });
 
-// 將動態生成的點擊事件掛載到全域 window 上
+// 切換完成狀態
 window.toggleComplete = function(checkbox) {
     const li = checkbox.closest('li');
     if (checkbox.checked) {
@@ -79,12 +82,14 @@ window.toggleComplete = function(checkbox) {
     updateStats();
 };
 
+// 刪除單個任務
 window.deleteTodo = function(button) {
     const li = button.parentElement;
     li.remove();
     updateStats();
 };
 
+// 清除全部任務
 clearAllBtn.addEventListener('click', function() {
     if (confirm('確定要清除所有待辦事項嗎？')) {
         todoList.innerHTML = '';
@@ -92,5 +97,5 @@ clearAllBtn.addEventListener('click', function() {
     }
 });
 
-// 啟動初始化統計
+// 網頁初始化載入
 updateStats();
