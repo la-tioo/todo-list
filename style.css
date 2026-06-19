@@ -3,7 +3,6 @@
     --card-dark: #1e293b;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    /* 調整成對比度更高的亮麗漸層 */
     --accent: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
     --danger: #ef4444;
 }
@@ -30,19 +29,19 @@ body {
     border: 1px solid #334155;
 }
 
-/* 修正後的發光漸層標題 */
-.glow-title {
+/* 全新：高對比極光白霓虹標題（絕對亮眼不融入背景） */
+.neon-white-title {
     text-align: center;
     margin-top: 0;
     margin-bottom: 25px;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 800;
-    letter-spacing: 1px;
-    background: var(--accent);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* 加上微弱的發光陰影，讓字體在暗色背景更跳脫 */
-    filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.4));
+    letter-spacing: 2px;
+    color: #ffffff;
+    /* 運用多層次發光陰影，在暗色背景下耀眼奪目 */
+    text-shadow: 0 0 5px rgba(56, 189, 248, 0.6),
+                 0 0 10px rgba(56, 189, 248, 0.4),
+                 0 0 20px rgba(129, 140, 248, 0.3);
 }
 
 /* 數據統計區 */
