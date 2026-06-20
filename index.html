@@ -45,7 +45,11 @@
         </div>
 
         <div class="action-row">
-            <button class="sort-btn" id="sort-tasks">📅 依日期排序</button>
+            <select id="sort-select" class="sort-btn" style="padding: 6px 10px; font-size: 12px; height: auto;">
+                <option value="none">🔄 選擇排序方式</option>
+                <option value="date">📅 依截止日期排序</option>
+                <option value="priority">🔥 依重要度優先排序</option>
+            </select>
             <button class="clear-btn" id="clear-all">清除所有任務</button>
         </div>
 
