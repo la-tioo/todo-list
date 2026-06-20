@@ -10,6 +10,7 @@
     --danger: #ef4444;
     --warning: #fbbf24;
     --success: #10b981;
+    --calendar-bg: #1e293b;
 }
 
 /* 🏮 賽博朋克主題變數 */
@@ -21,6 +22,7 @@
     --accent: linear-gradient(135deg, #ff007f, #9d00ff);
     --glow-color1: #ff007f;
     --glow-color2: #00ffcc;
+    --calendar-bg: #18092b;
 }
 
 /* 🍃 靜謐森林主題變數 */
@@ -32,6 +34,7 @@
     --accent: linear-gradient(135deg, #4ade80, #10b981);
     --glow-color1: #4ade80;
     --glow-color2: #059669;
+    --calendar-bg: #1b261e;
 }
 
 body {
@@ -44,7 +47,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     box-sizing: border-box;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .todo-container {
@@ -60,31 +63,42 @@ body {
     transition: background 0.3s, border 0.3s;
 }
 
-/* 🆕 主題切換按鈕外觀 */
-.theme-switcher {
+/* 🌟【全新修復】優雅低調的底部主題切換欄 */
+.theme-switcher-bottom {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     gap: 6px;
-    margin-bottom: 15px;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px dashed #475569;
+}
+.theme-lbl {
+    font-size: 11px;
+    color: var(--text-muted);
 }
 .theme-btn {
     background: #1e293b;
     border: 1px solid #475569;
     color: #94a3b8;
-    padding: 4px 8px;
+    padding: 4px 10px;
     font-size: 11px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
 }
-.theme-btn.active {
-    background: var(--text-main);
-    color: var(--bg-dark);
+.theme-btn:hover {
     border-color: var(--text-main);
+    color: #ffffff;
+}
+.theme-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
     font-weight: bold;
 }
 
-/* 強效動態霓虹純白標題（顏色會隨主題變數連動發光） */
+/* 強效動態霓虹純白標題 */
 .neon-white-title {
     text-align: center;
     margin-top: 0;
@@ -182,7 +196,7 @@ li.completed .todo-text, li.completed .todo-date { text-decoration: line-through
 .text-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .todo-text { font-size: 16px; color: var(--text-main); font-weight: 500; word-break: break-all; }
 
-/* 🆕 分類標籤樣式 */
+/* 分類標籤樣式 */
 .task-tag {
     display: inline-block;
     font-size: 11px;
@@ -222,10 +236,12 @@ input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-colo
 
 input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
 
+/* 智慧日曆樣式 (綁定變數以相容主題切換) */
 #calendar-view {
-    background: #1e293b; padding: 15px; border-radius: 14px; border: 1px solid #475569; margin-top: 10px; font-size: 13px;
+    background: var(--calendar-bg); padding: 15px; border-radius: 14px; border: 1px solid #475569; margin-top: 10px; font-size: 13px;
+    transition: background 0.3s;
 }
-.fc { color: #ffffff; }
+.fc { color: var(--text-main); }
 .fc .fc-toolbar-title { font-size: 16px !important; font-weight: bold; color: var(--text-main); }
 .fc .fc-button-primary { background-color: #334155; border-color: #475569; font-size: 11px; padding: 4px 8px; }
 .fc th { background: #0f172a; padding: 6px 0; color: var(--text-muted); }
