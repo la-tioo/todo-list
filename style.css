@@ -33,17 +33,19 @@ body {
     z-index: 1;
 }
 
+/* 🌟 已還原：原先最好看、最好識別的極光藍紫漸層發光標題 */
 .neon-white-title {
     text-align: center;
     margin-top: 0;
     margin-bottom: 25px;
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 800;
     letter-spacing: 2px;
-    background: linear-gradient(135deg, #ffffff, #e2e8f0, #bae6fd);
+    background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 12px rgba(129, 140, 248, 0.5),
+                 0 0 25px rgba(56, 189, 248, 0.2);
 }
 
 .stats-container {
@@ -60,7 +62,7 @@ body {
 .stat-val { font-size: 20px; font-weight: bold; color: #ffffff; }
 .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* 新增：篩選頁籤樣式 */
+/* 篩選頁籤基本外觀 */
 .filter-tabs {
     display: flex;
     gap: 8px;
@@ -71,22 +73,23 @@ body {
     background: #1e293b;
     border: 1px solid #475569;
     color: var(--text-muted);
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: bold;
     transition: all 0.2s;
 }
 .tab-btn:hover {
     background: #475569;
     color: white;
 }
+/* 啟用中按鈕的視覺高亮效果 */
 .tab-btn.active {
     background: #0f172a;
     color: #38bdf8;
     border-color: #38bdf8;
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
 .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
@@ -200,7 +203,6 @@ li.completed .todo-text, li.completed .todo-date {
 .text-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 .todo-text { font-size: 16px; color: var(--text-main); font-weight: 500; word-break: break-all; }
 
-/* 新增：編輯模式內嵌輸入框 */
 .edit-input {
     width: 90%;
     padding: 6px 10px;
@@ -222,7 +224,6 @@ input[type="checkbox"] {
     accent-color: #6366f1;
 }
 
-/* 按鈕群組排版 */
 .btn-group {
     display: flex;
     gap: 6px;
@@ -242,7 +243,6 @@ input[type="checkbox"] {
 }
 .delete-btn:hover { background: var(--danger); color: white; }
 
-/* 新增：編輯與儲存按鈕顏色 */
 .edit-btn { background: rgba(56, 189, 248, 0.15); color: #93c5fd; border-color: rgba(56, 189, 248, 0.3); }
 .edit-btn:hover { background: #38bdf8; color: white; }
 .save-btn { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3); }
