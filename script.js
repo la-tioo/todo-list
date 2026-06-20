@@ -5,26 +5,34 @@ const addButton = document.getElementById('add-button');
 const todoList = document.getElementById('todo-list');
 const emptyMsg = document.getElementById('empty-msg');
 const clearAllBtn = document.getElementById('clear-all');
-const sortSelect = document.getElementById('sort-select'); // 取得排序下拉選單
+const sortSelect = document.getElementById('sort-select');
 const tabButtons = document.querySelectorAll('.tab-btn');
 
 const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
 const countCompleted = document.getElementById('count-completed');
 
-// 載入 localStorage 資料
+const viewListBtn = document.getElementById('view-list-btn');
+const viewCalendarBtn = document.getElementById('view-calendar-btn');
+const listWrapper = document.getElementById('list-wrapper');
+const calendarView = document.getElementById('calendar-view');
+const listFilterTabs = document.getElementById('list-filter-tabs');
+const listActionRow = document.getElementById('list-action-row');
+
 let tasks = JSON.parse(localStorage.getItem('todo_tasks')) || [];
 tasks.forEach(t => t.isEditing = false); 
 
-// 當前選擇的篩選器模式
 let currentFilter = 'all';
+let calendar = null;
 
 function saveAndRender() {
     localStorage.setItem('todo_tasks', JSON.stringify(tasks));
     renderTasks();
+    if (calendar) {
+        syncCalendarEvents();
+    }
 }
 
-// 渲染畫面
 function renderTasks() {
     todoList.innerHTML = '';
     const todayStr = new Date().toISOString().split('T')[0];
@@ -112,7 +120,6 @@ function addTodo() {
     todoDate.value = '';
     todoPriority.value = 'normal';
 
-    // 新增任務後，如果原本有選排序，自動重新套用排序
     applySort();
     saveAndRender();
 }
@@ -135,7 +142,7 @@ window.saveEdit = function(index) {
         }
     }
     tasks[index].isEditing = false;
-    applySort(); // 編輯完後重新排序
+    applySort();
     saveAndRender();
 };
 
@@ -154,25 +161,18 @@ window.deleteTodo = function(index) {
     saveAndRender();
 };
 
-// 🌟 精準核心：執行複合排序的方法
 function applySort() {
     const mode = sortSelect.value;
-    
     if (mode === 'date') {
-        // 1. 純日期排序（未設定日期的排最後面）
         tasks.sort((a, b) => {
             if (!a.date) return 1;
             if (!b.date) return -1;
             return new Date(a.date) - new Date(b.date);
         });
     } else if (mode === 'priority') {
-        // 2. 重要度優先排序（🔥重要 ＞ ☕一般）
         tasks.sort((a, b) => {
-            // 如果重要度不同，high 排在前面
             if (a.priority === 'high' && b.priority !== 'high') return -1;
             if (a.priority !== 'high' && b.priority === 'high') return 1;
-            
-            // 如果重要度相同，則進一步依日期先後排序
             if (!a.date) return 1;
             if (!b.date) return -1;
             return new Date(a.date) - new Date(b.date);
@@ -180,7 +180,6 @@ function applySort() {
     }
 }
 
-// 監聽排序下拉選單切換
 sortSelect.addEventListener('change', () => {
     applySort();
     renderTasks();
@@ -207,5 +206,66 @@ tabButtons.forEach(button => {
     });
 });
 
-// 首次加載渲染
+function initCalendar() {
+    if (calendar) return;
+
+    calendar = new FullCalendar.Calendar(calendarView, {
+        initialView: 'dayGridMonth',
+        locale: 'zh-tw',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listMonth'
+        },
+        events: getCalendarEvents(),
+        eventClick: function(info) {
+            const taskIndex = info.event.extendedProps.index;
+            if (taskIndex !== undefined) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                saveAndRender();
+            }
+        }
+    });
+    calendar.render();
+}
+
+function getCalendarEvents() {
+    return tasks.filter(task => task.date).map((task, idx) => {
+        let titlePrefix = task.priority === 'high' ? '🔥 ' : '';
+        let titleSuffix = task.completed ? ' (已完成)' : '';
+        return {
+            title: titlePrefix + task.text + titleSuffix,
+            start: task.date,
+            backgroundColor: task.completed ? '#475569' : (task.priority === 'high' ? '#ef4444' : '#38bdf8'),
+            extendedProps: { index: idx }
+        };
+    });
+}
+
+function syncCalendarEvents() {
+    calendar.removeAllEvents();
+    calendar.addEventSource(getCalendarEvents());
+}
+
+viewListBtn.addEventListener('click', () => {
+    viewListBtn.classList.add('active');
+    viewCalendarBtn.classList.remove('active');
+    listWrapper.style.display = 'block';
+    listFilterTabs.style.display = 'flex';
+    listActionRow.style.display = 'flex';
+    calendarView.style.display = 'none';
+    renderTasks();
+});
+
+viewCalendarBtn.addEventListener('click', () => {
+    viewCalendarBtn.classList.add('active');
+    viewListBtn.classList.remove('active');
+    listWrapper.style.display = 'none';
+    listFilterTabs.style.display = 'none';
+    listActionRow.style.display = 'none';
+    calendarView.style.display = 'block';
+    initCalendar();
+    calendar.updateSize();
+});
+
 renderTasks();
