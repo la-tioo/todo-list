@@ -5,7 +5,7 @@ const addButton = document.getElementById('add-button');
 const todoList = document.getElementById('todo-list');
 const emptyMsg = document.getElementById('empty-msg');
 const clearAllBtn = document.getElementById('clear-all');
-const sortTasksBtn = document.getElementById('sort-tasks');
+const sortSelect = document.getElementById('sort-select'); // 取得排序下拉選單
 const tabButtons = document.querySelectorAll('.tab-btn');
 
 const countAll = document.getElementById('count-all');
@@ -24,13 +24,12 @@ function saveAndRender() {
     renderTasks();
 }
 
-// 渲染畫面（包含篩選機制）
+// 渲染畫面
 function renderTasks() {
     todoList.innerHTML = '';
     const todayStr = new Date().toISOString().split('T')[0];
 
     tasks.forEach((task, index) => {
-        // 頁籤過濾邏輯
         if (currentFilter === 'active' && task.completed) return;
         if (currentFilter === 'completed' && !task.completed) return;
 
@@ -113,6 +112,8 @@ function addTodo() {
     todoDate.value = '';
     todoPriority.value = 'normal';
 
+    // 新增任務後，如果原本有選排序，自動重新套用排序
+    applySort();
     saveAndRender();
 }
 
@@ -134,6 +135,7 @@ window.saveEdit = function(index) {
         }
     }
     tasks[index].isEditing = false;
+    applySort(); // 編輯完後重新排序
     saveAndRender();
 };
 
@@ -152,13 +154,36 @@ window.deleteTodo = function(index) {
     saveAndRender();
 };
 
-sortTasksBtn.addEventListener('click', () => {
-    tasks.sort((a, b) => {
-        if (!a.date) return 1;
-        if (!b.date) return -1;
-        return new Date(a.date) - new Date(b.date);
-    });
-    saveAndRender();
+// 🌟 精準核心：執行複合排序的方法
+function applySort() {
+    const mode = sortSelect.value;
+    
+    if (mode === 'date') {
+        // 1. 純日期排序（未設定日期的排最後面）
+        tasks.sort((a, b) => {
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return new Date(a.date) - new Date(b.date);
+        });
+    } else if (mode === 'priority') {
+        // 2. 重要度優先排序（🔥重要 ＞ ☕一般）
+        tasks.sort((a, b) => {
+            // 如果重要度不同，high 排在前面
+            if (a.priority === 'high' && b.priority !== 'high') return -1;
+            if (a.priority !== 'high' && b.priority === 'high') return 1;
+            
+            // 如果重要度相同，則進一步依日期先後排序
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return new Date(a.date) - new Date(b.date);
+        });
+    }
+}
+
+// 監聽排序下拉選單切換
+sortSelect.addEventListener('change', () => {
+    applySort();
+    renderTasks();
 });
 
 clearAllBtn.addEventListener('click', () => {
@@ -173,14 +198,10 @@ todoInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addTodo();
 });
 
-// 🌟【關鍵修正】為篩選頁籤註冊點擊事件
 tabButtons.forEach(button => {
     button.addEventListener('click', () => {
-        // 清除所有按鈕的 active 狀態，並把當前點擊的按鈕設為 active
         tabButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
-        
-        // 取得篩選模式並重新渲染畫面
         currentFilter = button.getAttribute('data-filter');
         renderTasks();
     });
