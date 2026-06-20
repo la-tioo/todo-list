@@ -12,11 +12,11 @@ const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
 const countCompleted = document.getElementById('count-completed');
 
-// 載入資料，並確保初始時無任何任務處於編輯狀態
+// 載入 localStorage 資料
 let tasks = JSON.parse(localStorage.getItem('todo_tasks')) || [];
 tasks.forEach(t => t.isEditing = false); 
 
-// 當前選擇的篩選模式：'all', 'active', 'completed'
+// 當前選擇的篩選器模式
 let currentFilter = 'all';
 
 function saveAndRender() {
@@ -24,19 +24,18 @@ function saveAndRender() {
     renderTasks();
 }
 
-// 渲染畫面核心（包含篩選邏輯）
+// 渲染畫面（包含篩選機制）
 function renderTasks() {
     todoList.innerHTML = '';
     const todayStr = new Date().toISOString().split('T')[0];
 
     tasks.forEach((task, index) => {
-        // 頁籤篩選過濾器
+        // 頁籤過濾邏輯
         if (currentFilter === 'active' && task.completed) return;
         if (currentFilter === 'completed' && !task.completed) return;
 
         const li = document.createElement('li');
         
-        // 判定過期與重要度
         let isUrgent = false;
         if (task.date && task.date <= todayStr && !task.completed) {
             isUrgent = true;
@@ -48,9 +47,7 @@ function renderTasks() {
         const dateDisplay = task.date ? `📅 截止日期: ${task.date}` : '📅 未設定日期';
         const priorityTag = task.priority === 'high' ? '🔥 [重要] ' : '';
 
-        // 動態判定：是處於「一般顯示」還是「編輯模式」
         if (task.isEditing) {
-            // 編輯模式 HTML
             li.innerHTML = `
                 <div class="todo-content">
                     <div class="text-group">
@@ -64,7 +61,6 @@ function renderTasks() {
                 </div>
             `;
         } else {
-            // 一般顯示 HTML
             li.innerHTML = `
                 <div class="todo-content">
                     <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index})">
@@ -85,7 +81,6 @@ function renderTasks() {
     updateStats();
 }
 
-// 更新上方總數面板
 function updateStats() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
@@ -95,12 +90,10 @@ function updateStats() {
     countActive.textContent = active;
     countCompleted.textContent = completed;
 
-    // 依據當前篩選下是否有顯示物件來控制提示文字
     const displayedTasks = todoList.children.length;
     emptyMsg.style.display = displayedTasks === 0 ? 'block' : 'none';
 }
 
-// 新增任務
 function addTodo() {
     const taskText = todoInput.value.trim();
     const taskDate = todoDate.value;
@@ -123,18 +116,15 @@ function addTodo() {
     saveAndRender();
 }
 
-// 啟動編輯狀態
 window.startEdit = function(index) {
     tasks[index].isEditing = true;
     renderTasks();
-    // 自動將輸入游標聚焦到該編輯框中
     setTimeout(() => {
         const editField = document.getElementById(`input-edit-${index}`);
         if (editField) editField.focus();
     }, 50);
 };
 
-// 儲存編輯內容
 window.saveEdit = function(index) {
     const editField = document.getElementById(`input-edit-${index}`);
     if (editField) {
@@ -147,7 +137,6 @@ window.saveEdit = function(index) {
     saveAndRender();
 };
 
-// 取消編輯
 window.cancelEdit = function(index) {
     tasks[index].isEditing = false;
     renderTasks();
@@ -163,7 +152,6 @@ window.deleteTodo = function(index) {
     saveAndRender();
 };
 
-// 依據日期排序
 sortTasksBtn.addEventListener('click', () => {
     tasks.sort((a, b) => {
         if (!a.date) return 1;
@@ -173,29 +161,30 @@ sortTasksBtn.addEventListener('click', () => {
     saveAndRender();
 });
 
-// 清除所有
 clearAllBtn.addEventListener('click', () => {
-    if (confirm('確定要清除所有待辦事項嗎？這會連同瀏覽器快取紀錄一起清空喔！')) {
+    if (confirm('確定要清除所有待辦事項嗎？')) {
         tasks = [];
         saveAndRender();
     }
 });
 
-// 監聽新增按鍵
 addButton.addEventListener('click', addTodo);
 todoInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addTodo();
 });
 
-// 監聽頁籤切換事件
+// 🌟【關鍵修正】為篩選頁籤註冊點擊事件
 tabButtons.forEach(button => {
     button.addEventListener('click', () => {
+        // 清除所有按鈕的 active 狀態，並把當前點擊的按鈕設為 active
         tabButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
+        
+        // 取得篩選模式並重新渲染畫面
         currentFilter = button.getAttribute('data-filter');
-        renderTasks(); // 重新過濾渲染
+        renderTasks();
     });
 });
 
-// 首次執行渲染
+// 首次加載渲染
 renderTasks();
