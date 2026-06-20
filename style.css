@@ -5,6 +5,7 @@
     --text-muted: #94a3b8;
     --accent: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
     --danger: #ef4444;
+    --warning: #f59e0b;
 }
 
 body {
@@ -31,7 +32,6 @@ body {
     z-index: 1;
 }
 
-/* 精緻的極光藍紫漸層標題（降低死白感） */
 .neon-white-title {
     text-align: center;
     margin-top: 0;
@@ -46,7 +46,6 @@ body {
                  0 0 15px rgba(168, 85, 247, 0.2);
 }
 
-/* 數據統計區 */
 .stats-container {
     display: flex;
     justify-content: space-between;
@@ -56,35 +55,14 @@ body {
     margin-bottom: 25px;
     border: 1px solid #334155;
 }
-.stat-item {
-    text-align: center;
-    flex: 1;
-}
-.stat-item:not(:last-child) {
-    border-right: 1px solid #334155;
-}
-.stat-val {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-}
-.stat-lbl {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-}
+.stat-item { text-align: center; flex: 1; }
+.stat-item:not(:last-child) { border-right: 1px solid #334155; }
+.stat-val { font-size: 20px; font-weight: bold; color: #ffffff; }
+.stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* 輸入區域 */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 25px;
-}
-.input-row {
-    display: flex;
-    gap: 12px;
-}
+.input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+.input-row { display: flex; gap: 12px; }
+
 input[type="text"] {
     flex: 1;
     padding: 14px 16px;
@@ -96,14 +74,14 @@ input[type="text"] {
     outline: none;
     transition: all 0.3s;
     position: relative;
-    z-index: 10; /* 強制提升層級，確保點得到 */
+    z-index: 10;
 }
-input[type="text"]:focus, input[type="date"]:focus {
+input[type="text"]:focus, input[type="date"]:focus, select:focus {
     border-color: #38bdf8;
     box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
 }
 
-input[type="date"] {
+input[type="date"], select {
     padding: 12px;
     background: #0f172a;
     border: 2px solid #334155;
@@ -113,7 +91,7 @@ input[type="date"] {
     color: var(--text-main);
     cursor: pointer;
     position: relative;
-    z-index: 10; /* 強制提升層級，確保點得到 */
+    z-index: 10;
 }
 
 button.add-btn {
@@ -125,7 +103,6 @@ button.add-btn {
     font-size: 16px;
     cursor: pointer;
     font-weight: bold;
-    flex: 1;
     transition: transform 0.1s, opacity 0.2s;
     position: relative;
     z-index: 10;
@@ -134,17 +111,15 @@ button.add-btn:hover {
     opacity: 0.95;
     box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
 }
-button.add-btn:active {
-    transform: scale(0.98);
-}
 
-/* 快速功能 */
 .action-row {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 15px;
 }
-.clear-btn {
+
+.clear-btn, .sort-btn {
     background: none;
     border: 1px solid #475569;
     color: var(--text-muted);
@@ -161,8 +136,12 @@ button.add-btn:active {
     color: var(--danger);
     border-color: var(--danger);
 }
+.sort-btn:hover {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border-color: #38bdf8;
+}
 
-/* 任務清單 */
 ul { list-style: none; padding: 0; margin: 0; }
 li {
     display: flex;
@@ -181,9 +160,16 @@ li:hover {
     transform: translateY(-2px);
 }
 
+/* 重要任務的左側火焰橘高亮 */
+li.priority-high {
+    border-left: 5px solid var(--warning);
+    background: linear-gradient(90deg, #2d221e, #1e293b);
+}
+
 li.completed {
     background: #0f172a;
     border-color: #1e293b;
+    border-left-color: #1e293b;
     opacity: 0.5;
 }
 li.completed .todo-text, li.completed .todo-date {
@@ -217,21 +203,14 @@ input[type="checkbox"] {
     position: relative;
     z-index: 10;
 }
-.delete-btn:hover {
-    background: var(--danger);
-    color: white;
-}
-/* 針對 Chrome, Edge, Safari 瀏覽器 */
+.delete-btn:hover { background: var(--danger); color: white; }
+
+.empty-state { text-align: center; color: var(--text-muted); margin-top: 25px; font-size: 14px; }
+
+/* 點亮日期選擇器的小日曆圖標 */
 input[type="date"]::-webkit-calendar-picker-indicator {
-    /* 使用白色的濾鏡，把圖標直接變成亮白色 */
     filter: invert(1);
     cursor: pointer;
     opacity: 0.8;
-    transition: opacity 0.2s;
 }
-
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
-}
-
-.empty-state { text-align: center; color: var(--text-muted); margin-top: 25px; font-size: 14px; }
+input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
