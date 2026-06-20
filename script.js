@@ -1,12 +1,14 @@
 const todoInput = document.getElementById('todo-input');
 const todoDate = document.getElementById('todo-date');
 const todoPriority = document.getElementById('todo-priority');
+const todoTag = document.getElementById('todo-tag'); // 🆕 取得標籤
 const addButton = document.getElementById('add-button');
 const todoList = document.getElementById('todo-list');
 const emptyMsg = document.getElementById('empty-msg');
 const clearAllBtn = document.getElementById('clear-all');
 const sortSelect = document.getElementById('sort-select');
 const tabButtons = document.querySelectorAll('.tab-btn');
+const themeButtons = document.querySelectorAll('.theme-btn'); // 🆕 取得主題按鈕
 
 const countAll = document.getElementById('count-all');
 const countActive = document.getElementById('count-active');
@@ -24,6 +26,14 @@ tasks.forEach(t => t.isEditing = false);
 
 let currentFilter = 'all';
 let calendar = null;
+
+// 🆕 標籤中文化對照表
+const tagMap = {
+    life: { text: '☕ 生活', class: 'tag-life' },
+    work: { text: '🔥 工作', class: 'tag-work' },
+    study: { text: '📝 學習', class: 'tag-study' },
+    sport: { text: '🏆 運動', class: 'tag-sport' }
+};
 
 function saveAndRender() {
     localStorage.setItem('todo_tasks', JSON.stringify(tasks));
@@ -53,6 +63,10 @@ function renderTasks() {
 
         const dateDisplay = task.date ? `📅 截止日期: ${task.date}` : '📅 未設定日期';
         const priorityTag = task.priority === 'high' ? '🔥 [重要] ' : '';
+        
+        // 🆕 產生標籤 HTML
+        const tagInfo = tagMap[task.tag || 'life'];
+        const tagHtml = `<span class="task-tag ${tagInfo.class}">${tagInfo.text}</span>`;
 
         if (task.isEditing) {
             li.innerHTML = `
@@ -72,7 +86,7 @@ function renderTasks() {
                 <div class="todo-content">
                     <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index})">
                     <div class="text-group" onclick="toggleComplete(${index})">
-                        <span class="todo-text">${priorityTag}${task.text}</span>
+                        <span class="todo-text">${priorityTag}${task.text} ${tagHtml}</span>
                         <span class="todo-date">${dateDisplay} ${isUrgent ? '⚠️ 已過期！' : ''}</span>
                     </div>
                 </div>
@@ -105,6 +119,7 @@ function addTodo() {
     const taskText = todoInput.value.trim();
     const taskDate = todoDate.value;
     const taskPrio = todoPriority.value;
+    const taskTagValue = todoTag.value; // 🆕 抓取標籤值
 
     if (taskText === '') return;
 
@@ -112,6 +127,7 @@ function addTodo() {
         text: taskText,
         date: taskDate,
         priority: taskPrio,
+        tag: taskTagValue, // 🆕 儲存標籤
         completed: false,
         isEditing: false
     });
@@ -119,6 +135,7 @@ function addTodo() {
     todoInput.value = '';
     todoDate.value = '';
     todoPriority.value = 'normal';
+    todoTag.value = 'life';
 
     applySort();
     saveAndRender();
@@ -232,7 +249,8 @@ function initCalendar() {
 function getCalendarEvents() {
     return tasks.filter(task => task.date).map((task, idx) => {
         let titlePrefix = task.priority === 'high' ? '🔥 ' : '';
-        let titleSuffix = task.completed ? ' (已完成)' : '';
+        let tagText = tagMap[task.tag || 'life'].text;
+        let titleSuffix = task.completed ? ' (已完成)' : ` [${tagText}]`;
         return {
             title: titlePrefix + task.text + titleSuffix,
             start: task.date,
@@ -267,5 +285,27 @@ viewCalendarBtn.addEventListener('click', () => {
     initCalendar();
     calendar.updateSize();
 });
+
+// 🆕【核心切換邏輯】多主題事件綁定
+themeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        themeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const selectedTheme = btn.getAttribute('data-theme');
+        // 切換 HTML 屬性
+        if (selectedTheme === 'aurora') {
+            document.documentElement.removeAttribute('data-theme-mode');
+        } else {
+            document.documentElement.setAttribute('data-theme-mode', selectedTheme);
+        }
+        localStorage.setItem('todo_theme', selectedTheme);
+    });
+});
+
+// 🆕 初始化載入主題
+const savedTheme = localStorage.getItem('todo_theme') || 'aurora';
+const targetThemeBtn = document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`);
+if (targetThemeBtn) targetThemeBtn.click();
 
 renderTasks();
