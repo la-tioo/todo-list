@@ -1,5 +1,7 @@
 :root {
-    --bg-dark: #0f172a;
+    /* 大幅調深背景色（從 #0f172a 改為更深邃的 #020617），拉大與卡片的對比 */
+    --bg-dark: #020617;
+    /* 保持中央卡片為高質感藍黑灰色 */
     --card-dark: #1e293b;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
@@ -26,8 +28,11 @@ body {
     max-width: 500px;
     padding: 30px;
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border: 1px solid #334155;
+    /* 增強陰影與微發光邊框，強烈提升卡片的立體懸浮感 */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 
+                0 0 15px rgba(56, 189, 248, 0.05);
+    /* 讓邊框顏色稍微亮一點點，勾勒出中央區塊的輪廓 */
+    border: 1px solid #475569;
     position: relative;
     z-index: 1;
 }
@@ -148,10 +153,11 @@ li {
     align-items: center;
     justify-content: space-between;
     padding: 14px 16px;
-    background: #1e293b;
+    /* 讓任務項目稍微深一點點，在卡片中形成更好的內嵌層次 */
+    background: #111827;
     margin-bottom: 12px;
     border-radius: 10px;
-    border: 1px solid #334155;
+    border: 1px solid #1e293b;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
     transition: all 0.2s;
 }
@@ -163,11 +169,11 @@ li:hover {
 /* 重要任務的左側火焰橘高亮 */
 li.priority-high {
     border-left: 5px solid var(--warning);
-    background: linear-gradient(90deg, #2d221e, #1e293b);
+    background: linear-gradient(90deg, #2d221e, #111827);
 }
 
 li.completed {
-    background: #0f172a;
+    background: #020617;
     border-color: #1e293b;
     border-left-color: #1e293b;
     opacity: 0.5;
