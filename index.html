@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>代辦事項清單</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/zh-tw.js"></script>
 </head>
 <body>
 
@@ -26,7 +29,12 @@
             </div>
         </div>
 
-        <div class="filter-tabs">
+        <div class="view-switch-row">
+            <button class="view-btn active" id="view-list-btn">📝 清單模式</button>
+            <button class="view-btn" id="view-calendar-btn">📅 日曆視圖</button>
+        </div>
+
+        <div class="filter-tabs" id="list-filter-tabs">
             <button class="tab-btn active" data-filter="all">🌟 全部</button>
             <button class="tab-btn" data-filter="active">⏳ 進行中</button>
             <button class="tab-btn" data-filter="completed">✅ 已完成</button>
@@ -44,8 +52,8 @@
             </div>
         </div>
 
-        <div class="action-row">
-            <select id="sort-select" class="sort-btn" style="padding: 6px 10px; font-size: 12px; height: auto;">
+        <div class="action-row" id="list-action-row">
+            <select id="sort-select" class="sort-btn">
                 <option value="none">🔄 選擇排序方式</option>
                 <option value="date">📅 依截止日期排序</option>
                 <option value="priority">🔥 依重要度優先排序</option>
@@ -53,8 +61,12 @@
             <button class="clear-btn" id="clear-all">清除所有任務</button>
         </div>
 
-        <ul id="todo-list"></ul>
-        <div id="empty-msg" class="empty-state">目前沒有任何待辦事項，來新增一個吧！</div>
+        <div id="list-wrapper">
+            <ul id="todo-list"></ul>
+            <div id="empty-msg" class="empty-state">目前沒有任何待辦事項，來新增一個吧！</div>
+        </div>
+
+        <div id="calendar-view" style="display: none;"></div>
     </div>
 
     <script src="script.js"></script>
