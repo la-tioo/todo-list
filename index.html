@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>待辦事項清單</title>
+    <title>代辦事項清單</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="todo-container">
-        <h1 class="neon-white-title">待辦事項清單</h1>
+        <h1 class="neon-white-title">代辦事項清單</h1>
         
         <div class="stats-container">
             <div class="stat-item">
@@ -30,11 +30,16 @@
             <input type="text" id="todo-input" placeholder="新增一項任務...">
             <div class="input-row">
                 <input type="date" id="todo-date">
+                <select id="todo-priority">
+                    <option value="normal">☕ 一般</option>
+                    <option value="high">🔥 重要</option>
+                </select>
                 <button class="add-btn" id="add-button">新增任務</button>
             </div>
         </div>
 
         <div class="action-row">
+            <button class="sort-btn" id="sort-tasks">📅 依日期排序</button>
             <button class="clear-btn" id="clear-all">清除所有任務</button>
         </div>
 
